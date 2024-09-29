@@ -1,9 +1,9 @@
 package Battleship_1_0;
 public class Board {
     //The array used to for the board
+    public static int[][] PlayerField = new int[10][10];
     public int[][] field;
-    public static Board PLAYER = new Board();
-    public static Board AI = new Board();
+
 
     //Default state for an area in board
     public static final int DEFAULT_AREA_STATE = 0;

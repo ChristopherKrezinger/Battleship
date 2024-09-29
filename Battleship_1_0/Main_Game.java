@@ -2,6 +2,7 @@ package Battleship_1_0;
 
 import javax.swing.*;
 
+import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 
@@ -58,7 +59,7 @@ public class Main_Game extends JPanel {
     JLabel outline = new JLabel();
 
     //popup text
-    JTextArea popup = new JTextArea();
+    public static JTextArea popup = new JTextArea();
 
     //player and ai field
     JButton[][] Playerfield = new JButton[10][10];
@@ -146,16 +147,17 @@ public class Main_Game extends JPanel {
         outline.setBorder(new LineBorder(Color.WHITE,4));
 
         //Notification Popup
-        popup.setBounds((game.getWidth() - 200) /2, (game.getHeight() - 50) /2, 200, 50);
-        popup.setText("Ihr Schiff liegt außerhalb des Feldes!!");
+        popup.setBounds((game.getWidth() - 230) /2, 150, 230, 100);
+        popup.setBorder(new BevelBorder(BevelBorder.RAISED));
         popup.setLineWrap(true);
         popup.setWrapStyleWord(true);
         popup.setEditable(false);
         popup.setFocusable(false);
         popup.setOpaque(true);
+        popup.setVisible(false);
         popup.setBackground(Color.WHITE);
         popup.setForeground(Color.RED);
-        popup.setFont(Buttons_Menu.font.getQTMilitary(14f));
+        popup.setFont(Buttons_Menu.font.getQTMilitary(24f));
 
         //Player field
         GridBagConstraints gbc = new GridBagConstraints();
@@ -163,7 +165,7 @@ public class Main_Game extends JPanel {
         gridPanel.setOpaque(false);
         gridPanel.setBorder(new LineBorder(Color.RED));
         gridPanel.setBounds(85,233,390,388);
-       // gridPanel.setOpaque(false);
+
 
         for (int i = 0; i < 10; i++) {
             for (int n = 0; n < 10; n++) {

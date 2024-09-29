@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 
 //handels inputs for ship placement
@@ -12,6 +14,9 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
     Point startingPoint;
     private final JButton[][] buttons;  // Das gesamte Panel mit den Buttons
     private final JPanel gridPanel;
+    private final Map<JButton, JLabel> buttonLabelMap = new HashMap<>();
+    private Sound sound = new Sound();
+
 
     public Drag_and_drop(JButton[][] buttons, JPanel gridPanel) {
         this.buttons = buttons; // Instanzieren mit dem Panel
@@ -55,42 +60,52 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
         //calculates the center of the ship at current point
         int centerX = labelLocation.x + labelSize.width / 2;
         int centerY = labelLocation.y + labelSize.height / 2;
+        if ((int) label.getClientProperty("size") % 2 == 0) {
+            if ((boolean) label.getClientProperty("toggle")) {
+                centerY += 10;
+            } else {
+                centerX += 10;
+            }
+        }
 
 
-        //calculates the Jbutton in the middle of the ship
+        //calculates the Jbutton in the middle point of the ship
         JButton centerButton = getButtonAtPosition(centerX, centerY);
 
-        //Ensures in bound placement
+        //ensures in bound placement
         if (inBound(label, gridPanel)) {
+            if (crossing(label)) {
 
-            //currently used for ship with size % 2 = 1
-            if (centerButton != null) {
+                //against false placement
+                if (centerButton != null) {
 
-                //gets location of center button
-                Point centerLocation = centerButton.getLocation();
-
-                //currently used for ship with size % 2 = 1
-                if ((int) label.getClientProperty("size") % 2 != 0) {
-
-
+                    //gets location of center button
+                    Point centerLocation = centerButton.getLocation();
 
                     //locks ship in place unfortunately no more precise way found for calculation
-                    label.setLocation(centerLocation.x + 98 - label.getWidth() / 2,
-                            centerLocation.y + 248 - label.getHeight() / 2);
+                    //placement ship size == 5 or 3
+                    if ((int) label.getClientProperty("size") % 2 != 0) {
+                        label.setLocation(centerLocation.x + 98 - label.getWidth() / 2,
+                                centerLocation.y + 248 - label.getHeight() / 2);
+                    }
+
+                    //placement ship size == 4 or 2
+                    else if ((boolean) label.getClientProperty("toggle")) {
+
+                        label.setLocation(centerLocation.x + 98 - label.getWidth() / 2,
+                                centerLocation.y + 228 - label.getHeight() / 2);
+                    } else {
+                        label.setLocation(centerLocation.x + 78 - label.getWidth() / 2,
+                                centerLocation.y + 248 - label.getHeight() / 2);
+                    }
 
                     //highlights the buttons under locked ship
                     highlightButtonsUnderLabel(label);
-                }
-            }
-            else {
-
-                //will be used for ship with size % 2 = 0
-                        highlightButtonsUnderLabel(label);
 
                 }
             }
         }
-
+    }
 
 
     @Override
@@ -143,9 +158,9 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
 
     }
 
-
     /**
      * highlights the button under the placed ship
+     *
      * @param label used label for placement
      */
     private void highlightButtonsUnderLabel(JLabel label) {
@@ -158,30 +173,34 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
 
         //iterates through all components of the gridPanel
         for (Component comp : gridPanel.getComponents()) {
-            if (comp instanceof JButton) {
-                JButton button = (JButton) comp;
+            if (comp instanceof JButton button) {
 
                 //calculates the position of the button and creates rectangle at location
                 Point buttonLocation = button.getLocation();
                 Rectangle buttonBounds = new Rectangle(buttonLocation, button.getSize());
 
 
+                //checks whether label and button intersect
+                if (labelBounds.intersects(buttonBounds)) {
 
-                    //checks whether label and button intersect
-                    if (labelBounds.intersects(buttonBounds)) {
-                        //sets button green
-                        button.setBackground(Color.GREEN);
-                    } else {
-                        //if not intersecting, resets color
-                        button.setBackground(null);
-                    }
+                    //maps intersecting buttons to label
+                    buttonLabelMap.put(button, label);
+
+                    //sets button green
+                    button.setBackground(Color.GREEN);
+                } else if (buttonLabelMap.get(button) == label) {
+                    //if lable removed
+                    buttonLabelMap.remove(button);
+                    button.setBackground(null);
+
+                }
             }
         }
     }
 
-
     /**
      * returns the Jbutton at the point
+     *
      * @param x x-coordinate of position to calculate
      * @param y y-coordinate of position to calculate
      * @return returns desired Jbutton
@@ -189,8 +208,7 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
     private JButton getButtonAtPosition(int x, int y) {
         //iterates through all Jbuttons on field
         for (Component comp : gridPanel.getComponents()) {
-            if (comp instanceof JButton) {
-                JButton button = (JButton) comp;
+            if (comp instanceof JButton button) {
 
                 //calculates the position of the button and creates rectangle at location
                 Point buttonLocation = button.getLocation();
@@ -205,11 +223,11 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
         }
         return null;
     }
-    //private void placement() ... if get ButtonAt Position == null
 
 
     /**
      * checks if label is within bounds of panel. Used, so user can't place parts of the ship outside the field
+     *
      * @param label used label
      * @param panel panel in use
      * @return if the label is within the bounds of the panel
@@ -221,12 +239,65 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
         Rectangle panelBounds = panel.getBounds();
 
         //checks if label is completely inside the panel
-        return panelBounds.contains(labelBounds.x, labelBounds.y) &&
+        if(panelBounds.contains(labelBounds.x, labelBounds.y) &&
                 panelBounds.contains(labelBounds.x + labelBounds.width, labelBounds.y) &&
                 panelBounds.contains(labelBounds.x, labelBounds.y + labelBounds.height) &&
-                panelBounds.contains(labelBounds.x + labelBounds.width, labelBounds.y + labelBounds.height);
+                panelBounds.contains(labelBounds.x + labelBounds.width, labelBounds.y + labelBounds.height)) {
+            return true;
+        }
+        else {
+            //plays error sound
+            sound.playSound("resources/Error.wav");
+
+            //activates popup window for 3 sec
+            Timer timer = new Timer(3000, e -> {
+                Main_Game.popup.setVisible(false);
+            });
+            Main_Game.popup.setText("Your ship is placed out of bounds!!!");
+            Main_Game.popup.setVisible(true);
+            timer.setRepeats(false);
+            timer.start();
+            return false;
+        }
+
+    }
+
+    /**checks whether label clashes with other ships
+     * @param label desired label to check for intersections
+     * @return true or false, depending if ship is already placed on tile or not
+     */
+    private boolean crossing(JLabel label) {
+        for (Component comp : gridPanel.getComponents()) {
+            if (comp instanceof JButton button) {
+                Rectangle buttonBounds = SwingUtilities.convertRectangle(gridPanel, button.getBounds(), gridPanel.getParent());
+
+                //checks whether intersected button isn't mapped and green
+                if (label.getBounds().intersects(buttonBounds) &&
+                        (button.getBackground().equals(Color.GREEN))
+                        &&  !buttonLabelMap.get(button).equals(label) ) {
+                    //play error sound
+                    sound.playSound("resources/Error.wav");
+
+                    Timer timer = new Timer(3000,e ->{
+                        Main_Game.popup.setVisible(false);
+                    });
+                    Main_Game.popup.setText("Your ships are crossing!!!");
+                    Main_Game.popup.setVisible(true);
+                    timer.setRepeats(false);
+                    timer.start();
+
+                        return false;
+
+                    }
+                }
+
+
+            }
+        return true;
     }
 }
+
+
 
 
 
