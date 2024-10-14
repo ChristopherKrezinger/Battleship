@@ -2,7 +2,9 @@ package Battleship_1_0;
 public class Board {
     //The array used to for the board
     public static int[][] PlayerField = new int[10][10];
+    public static int[][] AIField = new int[10][10];
     public int[][] field;
+
 
 
     //Default state for an area in board
@@ -17,21 +19,7 @@ public class Board {
     public static int END_GAME_STATE = 17;
 
 
-    /**
-     * For starting a new game and reset the board states
-     */
-    //Initialization of a game board for ether a.i., or player:
-    public void makeboard() {
-        for (int i = 0; i < field.length; i++) {
-            for (int j = 0; j < field.length; j++) {
-                field[i][j] = DEFAULT_AREA_STATE;
-            }
-        }
-    }
-    //Constructor which also sets a 10 x 10 array
-    public Board() {
-        field = new int[11][11];
-    }
+
 
     /**
      * Setter to change states on specific area, for hit and misses

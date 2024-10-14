@@ -30,9 +30,9 @@ public class Menu extends JPanel {
             fadeOutAnimation("Main_Game");
         });
         Buttons_Menu controls = new Buttons_Menu(x_position_button, y_position_button , "Controls", (e) -> {
-            Frame_Manager.cardLayout.show(Frame_Manager.cardpanel, "Controls");});
+            Frame_Manager.cardLayout.show(Frame_Manager.cardPanel, "Controls");});
        Buttons_Menu credits = new Buttons_Menu(x_position_button,y_position_button + 100, "Credits", (e) -> {
-           Frame_Manager.cardLayout.show(Frame_Manager.cardpanel, "Credits");});
+           Frame_Manager.cardLayout.show(Frame_Manager.cardPanel, "Credits");});
         Buttons_Menu exit = new Buttons_Menu(x_position_button, y_position_button + 200, "Exit", (e) ->{
             System.exit(0);
         });
@@ -79,7 +79,7 @@ public class Menu extends JPanel {
      * @param nextPanel next panel shown after fade out animation
      */
     public void fadeOutAnimation(String nextPanel) {
-        JPanel currentPanel = (JPanel) Frame_Manager.cardpanel.getComponent(0);
+        JPanel currentPanel = (JPanel) Frame_Manager.cardPanel.getComponent(0);
         Timer timer = new Timer(50, new ActionListener() {
 
             //starts timer and repaints with lowering alpha
@@ -88,7 +88,7 @@ public class Menu extends JPanel {
                 alpha -= 0.05f; // Reduziere die Transparenz
                 if (alpha <= 0.0f) {
                     // alpha reaches 0, stops timer and shows nextPanel
-                    Frame_Manager.cardLayout.show(Frame_Manager.cardpanel, nextPanel);
+                    Frame_Manager.cardLayout.show(Frame_Manager.cardPanel, nextPanel);
                     ((Timer) e.getSource()).stop();
                 } else {
                     currentPanel.repaint();

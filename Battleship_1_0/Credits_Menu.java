@@ -16,7 +16,7 @@ public class Credits_Menu extends JPanel {
     //Constructor
     Credits_Menu(){
         Buttons_Menu back = new Buttons_Menu(Menu.x_position_button, Menu.y_position_button + 200, "Back", (e) -> {
-            Frame_Manager.cardLayout.show(Frame_Manager.cardpanel, "Menu");
+            Frame_Manager.cardLayout.show(Frame_Manager.cardPanel, "Menu");
         });
 
         //properties for background

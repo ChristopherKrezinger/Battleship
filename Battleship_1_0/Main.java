@@ -14,7 +14,7 @@ public class Main {
 
       //Game is running here:
       public static void main (String[]args){
-      new Frame_Manager();
+          new Frame_Manager();
          //new Main_Game();
     // game.game();
     // game.end_game();

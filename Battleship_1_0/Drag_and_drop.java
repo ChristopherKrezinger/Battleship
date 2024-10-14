@@ -16,7 +16,7 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
     private final JPanel gridPanel;
     private final Map<JButton, JLabel> buttonLabelMap = new HashMap<>();
     private Sound sound = new Sound();
-
+    public Map<JLabel, Point> locationMap = new HashMap<>();
 
     public Drag_and_drop(JButton[][] buttons, JPanel gridPanel) {
         this.buttons = buttons; // Instanzieren mit dem Panel
@@ -73,38 +73,51 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
         JButton centerButton = getButtonAtPosition(centerX, centerY);
 
         //ensures in bound placement
-        if (inBound(label, gridPanel)) {
-            if (crossing(label)) {
+
 
                 //against false placement
                 if (centerButton != null) {
+                    if (inBound(label, gridPanel)) {
+                        if (crossing(label)) {
+                            //gets location of center button
+                            Point centerLocation = centerButton.getLocation();
 
-                    //gets location of center button
-                    Point centerLocation = centerButton.getLocation();
+                            //locks ship in place unfortunately no more precise way found for calculation
+                            //placement ship size == 5 or 3
+                            if ((int) label.getClientProperty("size") % 2 != 0) {
+                                label.setLocation(centerLocation.x + 98 - label.getWidth() / 2,
+                                        centerLocation.y + 248 - label.getHeight() / 2);
+                            }
 
-                    //locks ship in place unfortunately no more precise way found for calculation
-                    //placement ship size == 5 or 3
-                    if ((int) label.getClientProperty("size") % 2 != 0) {
-                        label.setLocation(centerLocation.x + 98 - label.getWidth() / 2,
-                                centerLocation.y + 248 - label.getHeight() / 2);
+                            //placement ship size == 4 or 2
+                            else if ((boolean) label.getClientProperty("toggle")) {
+
+                                label.setLocation(centerLocation.x + 98 - label.getWidth() / 2,
+                                        centerLocation.y + 228 - label.getHeight() / 2);
+                            } else {
+                                label.setLocation(centerLocation.x + 78 - label.getWidth() / 2,
+                                        centerLocation.y + 248 - label.getHeight() / 2);
+                            }
+
+                            //highlights the buttons under locked ship
+                            highlightButtonsUnderLabel(label);
+
+                        }
                     }
-
-                    //placement ship size == 4 or 2
-                    else if ((boolean) label.getClientProperty("toggle")) {
-
-                        label.setLocation(centerLocation.x + 98 - label.getWidth() / 2,
-                                centerLocation.y + 228 - label.getHeight() / 2);
-                    } else {
-                        label.setLocation(centerLocation.x + 78 - label.getWidth() / 2,
-                                centerLocation.y + 248 - label.getHeight() / 2);
-                    }
-
-                    //highlights the buttons under locked ship
-                    highlightButtonsUnderLabel(label);
-
                 }
-            }
-        }
+                    //checks if all ships are set
+                    int counter = 0;
+                    for(int i = 0; i < buttons.length; i++){
+                       for(int j = 0; j < buttons[i].length; j++){
+                           if( buttons[i][j].getBackground().equals(Color.GREEN)){
+                               counter++;
+                           }
+                       }
+                    }
+                    if(counter == 17){
+                        Main_Game.start.setVisible(true);
+                    }
+
     }
 
 
@@ -185,13 +198,17 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
 
                     //maps intersecting buttons to label
                     buttonLabelMap.put(button, label);
-
+                    locationMap.put(label, label.getLocation());
                     //sets button green
                     button.setBackground(Color.GREEN);
-                } else if (buttonLabelMap.get(button) == label) {
-                    //if lable removed
+                    button.setContentAreaFilled(true);
+                }
+                else if (buttonLabelMap.get(button) == label) {
+                    //if lable moved
                     buttonLabelMap.remove(button);
+                    locationMap.remove(label);
                     button.setBackground(null);
+                    button.setContentAreaFilled(false);
 
                 }
             }
