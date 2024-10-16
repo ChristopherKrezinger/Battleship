@@ -1,9 +1,8 @@
 package Battleship_1_0;
 public class Board {
     //The array used to for the board
-    public static int[][] PlayerField = new int[10][10];
-    public static int[][] AIField = new int[10][10];
-    public int[][] field;
+
+    public final int[][] field = new int[10][10];
 
 
 
@@ -30,7 +29,7 @@ public class Board {
      */
     public void setArea(int row, int col, int state) {
         if (row >= 0 && row < 10 && col >= 0 && col < 10) {
-            this.field[col][row] = state;
+            this.field[row][col] = state;
         }
     }
 

@@ -22,6 +22,11 @@ public class Menu extends JPanel {
     static final int x_position_button = (1280 - buttonWidth) / 2;
     static final int y_position_button = (720 - buttonHeight) / 2;
 
+    //sound object
+    Sound soundPlayer = new Sound();
+    //Filepath of background music
+    String backgroundMusic = "resources/submarine.wav";
+
     //constructor
     public Menu(){
 
@@ -80,7 +85,7 @@ public class Menu extends JPanel {
      */
     public void fadeOutAnimation(String nextPanel) {
         JPanel currentPanel = (JPanel) Frame_Manager.cardPanel.getComponent(0);
-        Timer timer = new Timer(50, new ActionListener() {
+        Timer timer = new Timer(80, new ActionListener() {
 
             //starts timer and repaints with lowering alpha
             @Override
@@ -90,6 +95,8 @@ public class Menu extends JPanel {
                     // alpha reaches 0, stops timer and shows nextPanel
                     Frame_Manager.cardLayout.show(Frame_Manager.cardPanel, nextPanel);
                     ((Timer) e.getSource()).stop();
+                    soundPlayer.loopSound(backgroundMusic);
+
                 } else {
                     currentPanel.repaint();
                 }

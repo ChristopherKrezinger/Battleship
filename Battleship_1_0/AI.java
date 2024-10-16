@@ -306,10 +306,11 @@ public class AI {
      * @return returns true if there is no  ship surrounding on none of the tile surrounding the ship
      */
     public boolean setenhancer(int ran1, int ran2, int size, String placement) {
-        int r = aiRandomNumber_ranged(11, 0);
-        //By testing, the best results I get, if I let this method slide once every 10 time
+        int r = aiRandomNumber_ranged(200, 0);
+        //By testing, the best results I get, if I let this method slide once every 201 time
         if (r < 1) {
             return true;
+
         }
 
         //If user wants to set horizontal and a tile to the left is existing
@@ -317,7 +318,7 @@ public class AI {
             //checks if tile to the left is existing
             if (ran1 != 1) {
                 //checks if ships are set to the left or right
-                if (Board.AIField[ran2 - 1][ran1 + size - 1] != 1 && Board.AIField[ran2 - 1][ran1 - 2] != 1) {
+                if (Main_Game.AIField_logic.field[ran2 - 1][ran1 + size - 1] != 1 && Main_Game.AIField_logic.field[ran2 - 1][ran1 - 2] != 1) {
                     //if ship will be placed on the bottom row
                     if (ran2 == 10) {
                         checker(ran1, ran2 - 1, size, str1);
@@ -333,7 +334,7 @@ public class AI {
                     }
                 }
             //checks if ships are set to the right, used if tile to the left isn't existing
-            else if (Board.AIField[ran2 - 1][ran1 + size - 1] != 1) {
+            else if (Main_Game.AIField_logic.field[ran2 - 1][ran1 + size - 1] != 1) {
                 //if ship will be placed on the bottom row
                 if (ran2 == 10) {
                     checker(ran1, ran2 - 1, size, str1);
@@ -352,7 +353,7 @@ public class AI {
         if (placement.equals(str2)) {
             if (ran2 != 1) {
                 //checks if ships are set under or above
-                if (Board.AIField[ran2 + size - 1][ran1 - 1] != 1 && Board.AIField[ran2 - 2][ran1 - 1] != 1) {
+                if (Main_Game.AIField_logic.field[ran2 + size - 1][ran1 - 1] != 1 && Main_Game.AIField_logic.field[ran2 - 2][ran1 - 1] != 1) {
                     //if ship will be to the right edge
                     if (ran1 == 10) {
                         checker(ran1 - 1, ran2, size, str2);
@@ -367,7 +368,7 @@ public class AI {
                 }
             }
             //checks if ships are set under
-            else if (Board.AIField[ran2 + size - 1][ran1 - 1] != 1) {
+            else if (Main_Game.AIField_logic.field[ran2 + size - 1][ran1 - 1] != 1) {
                 //if ship will be placed on the right edge
                 if (ran1 == 10) {
                     checker(ran1 - 1, ran2, size, str2);
@@ -448,7 +449,8 @@ public class AI {
         if (checker(x, y, 3, placement)) {
             if (setenhancer(x, y, 3, placement)) {
                 ship_placement(x, y, 3, placement);
-            } else {
+            }
+            else {
                 setAIcruiser();
             }
         }
@@ -516,15 +518,15 @@ public class AI {
      */
     public static boolean checker(int start_x, int start_y, int size, String placement) {
 //checks boarders
-        if (start_x <= 0 || start_x > Board.AIField.length || start_y <= 0 || start_y > Board.AIField.length ||
-                start_x + size <= 0 || start_x + size > Board.AIField.length || start_y + size <= 0 || start_y + size > Board.AIField.length) {
+        if (start_x <= 0 || start_x > Main_Game.AIField_logic.field.length || start_y <= 0 || start_y > Main_Game.AIField_logic.field.length ||
+                start_x + size <= 0 || start_x + size > Main_Game.AIField_logic.field.length || start_y + size <= 0 || start_y + size > Main_Game.AIField_logic.field.length) {
             return false;
         }
         //checks if the spot is already used for horizontal placement
         if(str2.equals(placement)) {
             int i = start_y;
             while (i < start_y + size) {
-                if (Board.AIField[i - 1][start_x - 1] != 0) {
+                if (Main_Game.AIField_logic.field[i - 1][start_x - 1] != 0) {
                     return false;
                 }
                 i++;
@@ -534,7 +536,7 @@ public class AI {
         if(str1.equals(placement)) {
             int j = start_x;
             while (j < start_x + size) {
-                if (Board.AIField[start_y - 1][j - 1] != 0) {
+                if (Main_Game.AIField_logic.field[start_y - 1][j - 1] != 0) {
                     return false;
                 }
                 j++;
@@ -553,12 +555,12 @@ public class AI {
     private static void ship_placement(int start_x, int start_y, int size, String placement) {
         if (placement.equals(str2)) {
             for (int i = 0; start_y + i < start_y + size; i++) {
-                Board.AIField[start_y - 1 + i][start_x - 1] = Board.SHIP_ON_AREA_STATE;
+                Main_Game.AIField_logic.field[start_y - 1 + i][start_x - 1] = Board.SHIP_ON_AREA_STATE;
             }
         }
         if (placement.equals(str1)) {
             for (int i = 0; start_x + i < start_x + size; i++) {
-                Board.AIField[start_y - 1][start_x - 1 + i] = Board.SHIP_ON_AREA_STATE;
+                Main_Game.AIField_logic.field[start_y - 1][start_x - 1 + i] = Board.SHIP_ON_AREA_STATE;
             }
         }
     }

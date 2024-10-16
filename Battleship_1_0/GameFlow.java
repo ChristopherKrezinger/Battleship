@@ -9,26 +9,34 @@ public class GameFlow {
         PLAYING,
         GAME_OVER,
         PLAYER_TURN,
-        AI_TURN
+        AI_TURN,
+    }
+
+    public enum AIState {
+        NORMAL,
+        SEARCH,
+        SEEK_AND_DESTROY
     }
     private final PropertyChangeSupport support;
 
     private GameState currentState;
+    private AIState AI;
 
     public GameFlow() {
         currentState = GameState.PLACEMENT;
         support = new PropertyChangeSupport(this);
     }
 
-    public void setState(GameState newState) {
+    public void setGameState(GameState newState) {
         GameState oldState = this.currentState;
         this.currentState = newState;
         support.firePropertyChange("GameState", oldState, newState);
     }
+    public void setAIState(){
 
-    public GameState getState() {
-        return currentState;
     }
+
+
 
 
 

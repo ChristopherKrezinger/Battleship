@@ -18,7 +18,6 @@ public class Main_Game extends JPanel {
     static final ImageIcon DESTROYER = new ImageIcon("resources/Destroyer.png");
     static final ImageIcon SUBMARINE = new ImageIcon("resources/SubMarine.png");
 
-
     //Resize Battleship
     ImageIcon imageIcon_bs = new ImageIcon("resources/Battleship.png");
     Image image_bs = imageIcon_bs.getImage(); // transform it
@@ -44,11 +43,13 @@ public class Main_Game extends JPanel {
     Image image_ds = imageIcon_ds.getImage(); // transform it
     Image resizedDESTROYER = image_ds.getScaledInstance(DESTROYER.getIconWidth(), DESTROYER.getIconHeight() - 30, java.awt.Image.SCALE_SMOOTH); // scale it
 
+    //HitAnimation
+    HitAnimation hit = new HitAnimation();
 
     //sound object
-    static Sound player = new Sound();
-    //Filepath of background music
-    static String background_music = "resources/submarine.wav";
+    Sound soundPlayer = new Sound();
+    //Filepath to hitSound
+    String hitSound = "resources/hit.wav";
 
     //ships
     JLabel game = new JLabel();
@@ -71,8 +72,8 @@ public class Main_Game extends JPanel {
     private JButton AI_begin = new JButton();
 
     //player and AI field
-    JButton[][] Playerfield = new JButton[10][10];
-    JButton[][] AIfield = new JButton[10][10];
+    JButton[][] PlayerField = new JButton[10][10];
+    JButton[][] AIField = new JButton[10][10];
 
     //layout for PlayerField
     JPanel gridPanel = new JPanel(new GridBagLayout());
@@ -84,17 +85,24 @@ public class Main_Game extends JPanel {
     Color beige = new Color(242, 235, 150);
 
     //misc
-    Drag_and_drop d_and_d = new Drag_and_drop(Playerfield, gridPanel);
+    Drag_and_drop d_and_d = new Drag_and_drop(PlayerField, gridPanel);
     Rotation_KeyListener keylistener = new Rotation_KeyListener();
     CustomFont font = new CustomFont();
     AI ai = new AI();
 
+    Board PlayerField_logic = new Board();
+    public static Board AIField_logic = new Board();
 
     //constructor
     Main_Game() {
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setBounds(0, 0, 1280, 720);
 
+
+///////////Debugging:
+        //bounds has to be set first out of bounds so first hit will align
+        hit.setBounds(-100, -100, 80, 80);
+        //////////////////////////////////////////////////////////////////////
 
         //Background
         game.setIcon(GAME);
@@ -182,9 +190,10 @@ public class Main_Game extends JPanel {
         start.setFont(font.getQTMilitary(25f));
         start.setBackground(beige);
         start.setForeground(Color.RED);
-        start.setVisible(false);
+        start.setVisible(true);
         start.addActionListener(e -> {
-            Frame_Manager.gameFlow.setState(GameFlow.GameState.PLAYING);
+            Frame_Manager.gameFlow.setGameState(GameFlow.GameState.PLAYING);
+            start.setVisible(false);
         });
         start.setBorder(new BevelBorder(BevelBorder.RAISED));
 
@@ -198,7 +207,23 @@ public class Main_Game extends JPanel {
         player_begin.setForeground(Color.RED);
         player_begin.setVisible(false);
         player_begin.addActionListener(e -> {
-            Frame_Manager.gameFlow.setState(GameFlow.GameState.PLAYER_TURN);
+            Frame_Manager.gameFlow.setGameState(GameFlow.GameState.PLAYER_TURN);
+            AI_begin.setVisible(false);
+            player_begin.setVisible(false);
+            for (int i = 0; i < AIField_logic.field.length; i++) {
+                for (int j = 0; j < AIField_logic.field[i].length; j++) {
+                    //for debugging:
+                    if (AIField_logic.field[i][j] == Board.SHIP_ON_AREA_STATE) {
+
+                        AIField[i][j].setBackground(Color.red);
+                        AIField[i][j].setContentAreaFilled(true);
+                    }
+                    AIField[i][j].setEnabled(true);
+
+                }
+            }
+            Frame_Manager.gameFlow.setGameState(GameFlow.GameState.PLAYER_TURN);
+
         });
         player_begin.setBorder(new BevelBorder(BevelBorder.RAISED));
 
@@ -212,7 +237,21 @@ public class Main_Game extends JPanel {
         AI_begin.setForeground(Color.RED);
         AI_begin.setVisible(false);
         AI_begin.addActionListener(e -> {
-            Frame_Manager.gameFlow.setState(GameFlow.GameState.AI_TURN);
+            Frame_Manager.gameFlow.setGameState(GameFlow.GameState.AI_TURN);
+            AI_begin.setVisible(false);
+            player_begin.setVisible(false);
+            for (int i = 0; i < AIField_logic.field.length; i++) {
+                for (int j = 0; j < AIField_logic.field[i].length; j++) {
+                    //for debugging:
+                    if (AIField_logic.field[i][j] == Board.SHIP_ON_AREA_STATE) {
+
+                        AIField[i][j].setBackground(Color.red);
+                        AIField[i][j].setContentAreaFilled(true);
+                    }
+
+                }
+            }
+            Frame_Manager.gameFlow.setGameState(GameFlow.GameState.AI_TURN);
         });
         AI_begin.setBorder(new BevelBorder(BevelBorder.RAISED));
 
@@ -225,11 +264,12 @@ public class Main_Game extends JPanel {
 
         for (int i = 0; i < 10; i++) {
             for (int n = 0; n < 10; n++) {
-                Playerfield[i][n] = new JButton();
-                Playerfield[i][n].setPreferredSize(new Dimension(30, 30));
-                Playerfield[i][n].setContentAreaFilled(false);
-                Playerfield[i][n].setBorderPainted(false);
-                Playerfield[i][n].setFocusable(false);
+                PlayerField[i][n] = new JButton();
+                PlayerField[i][n].setPreferredSize(new Dimension(30, 30));
+                PlayerField[i][n].setContentAreaFilled(false);
+                PlayerField[i][n].setBorderPainted(false);
+                PlayerField[i][n].setFocusable(false);
+
                 gbc.gridx = n;
                 gbc.gridy = i;
 
@@ -239,7 +279,7 @@ public class Main_Game extends JPanel {
                 gbc.weightx = 1.0;
                 gbc.weighty = 1.0;
 
-                gridPanel.add(Playerfield[i][n], gbc);
+                gridPanel.add(PlayerField[i][n], gbc);
             }
         }
 
@@ -251,8 +291,12 @@ public class Main_Game extends JPanel {
 
         for (int i = 0; i < 10; i++) {
             for (int n = 0; n < 10; n++) {
-                AIfield[i][n] = new JButton();
-                AIfield[i][n].setPreferredSize(new Dimension(30, 30));
+                AIField[i][n] = new JButton();
+                AIField[i][n].setPreferredSize(new Dimension(30, 30));
+                AIField[i][n].setEnabled(false);
+                AIField[i][n].setContentAreaFilled(false);
+                AIField[i][n].setBorderPainted(false);
+                AIField[i][n].setFocusable(false);
                 gbc_ai.gridx = n;
                 gbc_ai.gridy = i;
 
@@ -261,11 +305,11 @@ public class Main_Game extends JPanel {
                 gbc_ai.weightx = 1.0;
                 gbc_ai.weighty = 1.0;
 
-                gridPanel_ai.add(AIfield[i][n], gbc_ai);
+                gridPanel_ai.add(AIField[i][n], gbc_ai);
             }
         }
 
-        //Propertychangelistener changes Gamestate
+        //PropertyChangeListener changes GameState
         Frame_Manager.gameFlow.addPropertyChangeListener(e -> {
             if ("GameState".equals(e.getPropertyName())) {
                 if (GameFlow.GameState.PLAYING.equals(e.getNewValue())) {
@@ -275,7 +319,7 @@ public class Main_Game extends JPanel {
                     playerTurn();
                 }
                 if (GameFlow.GameState.AI_TURN.equals(e.getNewValue())) {
-                    ///
+                    AITurn();
                 }
                 if (GameFlow.GameState.PLACEMENT.equals(e.getNewValue())) {
                     ///
@@ -298,6 +342,7 @@ public class Main_Game extends JPanel {
         layeredPane.add(gridPanel_ai, JLayeredPane.PALETTE_LAYER);
         layeredPane.add(player_begin, JLayeredPane.POPUP_LAYER);
         layeredPane.add(AI_begin, JLayeredPane.POPUP_LAYER);
+        layeredPane.add(hit, JLayeredPane.POPUP_LAYER);
 
 
         //Settings for frame
@@ -310,10 +355,26 @@ public class Main_Game extends JPanel {
 
     //starting phase of game
     private void startGame() {
-        //lock ships(with map of release event?.missing
-        for (Map.Entry<JLabel, Point> entry : d_and_d.locationMap.entrySet()) {
+        //locks ships, rotates them if needed
+        for (Map.Entry<JLabel, Pair> entry : d_and_d.locationMap.entrySet()) {
             JLabel key = entry.getKey();
-                key.setLocation(entry.getValue());
+            if ((boolean) entry.getValue().getSecond() && !(boolean) key.getClientProperty("toggle")) {
+                ImageIcon icon = (ImageIcon) key.getIcon();
+                ImageIcon rotatedIcon = keylistener.rotateImage(icon, -90);
+                key.setIcon(rotatedIcon);
+                key.setBounds(key.getX(), key.getY(), icon.getIconHeight(), icon.getIconWidth());
+                key.setLocation((Point) entry.getValue().getFirst());
+            }
+            if (!(boolean) entry.getValue().getSecond() && (boolean) key.getClientProperty("toggle")) {
+                ImageIcon icon = (ImageIcon) key.getIcon();
+                ImageIcon rotatedIcon = keylistener.rotateImage(icon, 90);
+                key.setIcon(rotatedIcon);
+                key.setBounds(key.getX(), key.getY(), icon.getIconHeight(), icon.getIconWidth());
+                key.setLocation((Point) entry.getValue().getFirst());
+
+            } else {
+                key.setLocation((Point) entry.getValue().getFirst());
+            }
         }
 
 
@@ -325,35 +386,74 @@ public class Main_Game extends JPanel {
         destroyer.removeMouseListener(d_and_d);
 
         //buttons
-        start.setVisible(false);
         player_begin.setVisible(true);
         AI_begin.setVisible(true);
 
-        System.out.println(Playerfield.length);
 
-        //combining of logic board and GuiBoard
-        for (int i = 0; i < Playerfield.length; i++) {
-            for (int j = 0; j < Playerfield[i].length; j++) {
-                if (Playerfield[i][j].getBackground().equals(Color.GREEN)) {
-                    Board.PlayerField[i][j] = Board.SHIP_ON_AREA_STATE;
+        //combining of logic board and GuiBoard and ads ActionListener to AiFieldButtons
+        for (int i = 0; i < PlayerField.length; i++) {
+            for (int j = 0; j < PlayerField[i].length; j++) {
+                if (PlayerField[i][j].getBackground().equals(Color.GREEN)) {
+                    PlayerField_logic.field[i][j] = Board.SHIP_ON_AREA_STATE;
                 }
+                Rectangle rect = SwingUtilities.convertRectangle(gridPanel_ai, AIField[i][j].getBounds(), hit.getParent());
+                final int row = i;
+                final int col = j;
+                //
+                AIField[i][j].addActionListener(e -> {
+                    if(AIField_logic.field[row][col] == 1) {
+                        AIField_logic.setArea(row,col, Board.HIT_AREA_STATE);
+                        soundPlayer.playSound(hitSound);
+                        hit.setVisible(true);
+                        hit.setBounds(rect.x - hit.getWidth() / 2 + 15, rect.y - hit.getHeight() / 2 + 15, 80, 80);
+                        hit.drawAnimation();
+                        AIField[row][col].setBackground(Color.RED);
+                        Timer blocker =new Timer(1450, end->{ enableButtons();});
+                        disableButtons();
+                        blocker.setRepeats(false);
+                        blocker.start();
+                    }
+                    else if(AIField_logic.field[row][col] == Board.DEFAULT_AREA_STATE){
+                        AIField_logic.setArea(row, col, Board.MISS_AREA_STATE);
+                        Frame_Manager.gameFlow.setGameState(GameFlow.GameState.AI_TURN);
+                    }
+                });
+
             }
         }
-        //AI placing ship and sets up board
+        //AI placing ship
         ai.AIShipPlacement();
-        for (int i = 0; i < Board.AIField.length; i++) {
-            for (int j = 0; j < Board.AIField[i].length; j++) {
-                if (Board.AIField[i][j] == Board.SHIP_ON_AREA_STATE) {
-                    AIfield[i][j].setBackground(Color.red);
-                }
-            }
-        }
 
     }
 
 
-    private void playerTurn(){
+    private void playerTurn() {
+        popup.setVisible(true);
+        popup.setText("Your Turn Captain");
+        enableButtons();
 
+    }
+    public void AITurn(){
+        popup.setVisible(true);
+        popup.setText("Enemy's Turn captain");
+        disableButtons();
+    }
+
+
+    private void disableButtons() {
+        for (JButton[] jButtons : AIField) {
+            for (JButton jButton : jButtons) {
+                jButton.setEnabled(false); // Disable all buttons
+            }
+        }
+    }
+
+    private void enableButtons() {
+        for (JButton[] jButtons : AIField) {
+            for (JButton jButton : jButtons) {
+                jButton.setEnabled(true); // Enable all buttons
+            }
+        }
     }
 }
 

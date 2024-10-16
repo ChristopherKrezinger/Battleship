@@ -49,7 +49,7 @@ public class Rotation_KeyListener implements KeyListener {
 
 
 
-    public static ImageIcon rotateImage(ImageIcon icon, int angle) {
+    public ImageIcon rotateImage(ImageIcon icon, int angle) {
         //convert the ImageIcon into a BufferedImage
         BufferedImage bufferedImage = new BufferedImage(
                 icon.getIconWidth(),

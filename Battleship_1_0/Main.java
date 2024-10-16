@@ -7,6 +7,10 @@ package Battleship_1_0;
 //credit for images : DeepAI(Menue Background)
 //credit for Main_Game Image: Deep Ai, made with Canva 
 //Battleships Image: Lowder2(Opengameart)
+//Animation Image: JoesAlotofthings(Opengameart)
+
+//Mute Background sound button
+//Mute sound
 
 
 //Runs game

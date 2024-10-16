@@ -16,7 +16,7 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
     private final JPanel gridPanel;
     private final Map<JButton, JLabel> buttonLabelMap = new HashMap<>();
     private Sound sound = new Sound();
-    public Map<JLabel, Point> locationMap = new HashMap<>();
+    public Map<JLabel, Pair> locationMap = new HashMap<>();
 
     public Drag_and_drop(JButton[][] buttons, JPanel gridPanel) {
         this.buttons = buttons; // Instanzieren mit dem Panel
@@ -198,7 +198,7 @@ public class Drag_and_drop implements MouseListener, MouseMotionListener {
 
                     //maps intersecting buttons to label
                     buttonLabelMap.put(button, label);
-                    locationMap.put(label, label.getLocation());
+                    locationMap.put(label, new Pair(label.getLocation(), label.getClientProperty("toggle")));
                     //sets button green
                     button.setBackground(Color.GREEN);
                     button.setContentAreaFilled(true);
