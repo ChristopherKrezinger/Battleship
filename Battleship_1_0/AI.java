@@ -11,11 +11,6 @@ public class AI {
     //List for runnable methods which places ships
     public final ArrayList<Runnable> methods = new ArrayList<>();
 
-    //object for sound for AI hit
-    static Sound player = new Sound();
-
-    //filepath for AI hit
-    String sound_ai_hit = "resources/alert.wav";
 
 
 
@@ -24,10 +19,10 @@ public class AI {
      *
      * @param max maximum, exclusive
      * @param min minimum, inclusive
-     * @return returns a random number between min and max - 1
+     * @return returns a random number between min and max
      */
     public int aiRandomNumber_ranged(int max, int min) {
-        return rand.nextInt(max - min) + min;
+        return rand.nextInt(max - min + 1) + min;
     }
 
 
@@ -37,8 +32,8 @@ public class AI {
      * @return returns right, or down
      */
     private String aiRandomPlacement() {
-        int i = aiRandomNumber_ranged(2, 0);
-        if (i == 0) {
+        int i = aiRandomNumber_ranged(3, 0);
+        if (i >= 2) {
             return str1;
         }
         else {
@@ -299,87 +294,122 @@ public class AI {
     /**
      * checks whether there are ships on surrounding tiles
      *
-     * @param ran1      random x coordinate of ship setter
-     * @param ran2      random y coordinate of ship setter
+     * @param ranX      random x coordinate of ship setter
+     * @param ranY      random y coordinate of ship setter
      * @param size      size of ship
      * @param placement placement, either right or down
      * @return returns true if there is no  ship surrounding on none of the tile surrounding the ship
      */
-    public boolean setenhancer(int ran1, int ran2, int size, String placement) {
-        int r = aiRandomNumber_ranged(200, 0);
-        //By testing, the best results I get, if I let this method slide once every 201 time
+    public boolean setenhancer(int ranX, int ranY, int size, String placement) {
+        int r = aiRandomNumber_ranged(50, 0);
+        //By testing, the best results I get, if I let this method slide once every 50 time
         if (r < 1) {
             return true;
 
         }
 
-        //If user wants to set horizontal and a tile to the left is existing
+        //If user wants to set horizontal
         if (placement.equals(str1)) {
-            //checks if tile to the left is existing
-            if (ran1 != 1) {
+            //checks if tile to the left or right is existing
+            if (ranX != 0 && ranX + size <= 9) {
                 //checks if ships are set to the left or right
-                if (Main_Game.AIField_logic.field[ran2 - 1][ran1 + size - 1] != 1 && Main_Game.AIField_logic.field[ran2 - 1][ran1 - 2] != 1) {
+                if (Main_Game.AIField_logic.field[ranX + size][ranY] != 1 && Main_Game.AIField_logic.field[ranX - 1][ranY] != 1) {
                     //if ship will be placed on the bottom row
-                    if (ran2 == 10) {
-                        checker(ran1, ran2 - 1, size, str1);
+                    if (ranY == 9) {
+                        return checker(ranX, ranY - 1, size, str1);
                     }
                     //if ship will be placed on the top row
-                    if (ran2 == 1) {
-                        checker(ran1, ran2 + 1, size, str1);
+                    if (ranY == 0) {
+                        return checker(ranX, ranY + 1, size, str1);
                     }
                     //if ship is placed elsewhere
-                    return checker(ran1, ran2 - 1, size, str1) &&
-                            checker(ran1, ran2 + 1, size, str1);
+                    return checker(ranX, ranY - 1, size, str1) &&
+                            checker(ranX, ranY + 1, size, str1);
 
-                    }
                 }
+            }
             //checks if ships are set to the right, used if tile to the left isn't existing
-            else if (Main_Game.AIField_logic.field[ran2 - 1][ran1 + size - 1] != 1) {
-                //if ship will be placed on the bottom row
-                if (ran2 == 10) {
-                    checker(ran1, ran2 - 1, size, str1);
+            if (ranX == 0) {
+                if (Main_Game.AIField_logic.field[ranX + size][ranY] != 1) {
+                    //if ship will be placed on the bottom row
+                    if (ranY == 9) {
+                        return checker(ranX, ranY - 1, size, str1);
+                    }
+                    //if ship will be placed on the top row
+                    if (ranY == 0) {
+                        return checker(ranX, ranY + 1, size, str1);
+                    }
+                    //if ship is placed elsewhere
+                    return checker(ranX, ranY - 1, size, str1) &&
+                            checker(ranX, ranY + 1, size, str1);
                 }
-                //if ship will be placed on the top row
-                if (ran2 == 1) {
-                    checker(ran1, ran2 + 1, size, str1);
+            }
+            //checks if ships are ste to the left, used if tile to the right isn't existing
+            if (ranX + size > 9) {
+                if (Main_Game.AIField_logic.field[ranX - 1][ranY] != 1) {
+                    //if ship will be placed on the bottom row
+                    if (ranY == 9) {
+                        return checker(ranX, ranY - 1, size, str1);
+                    }
+                    //if ship will be placed on the top row
+                    if (ranY == 0) {
+                        return checker(ranX, ranY + 1, size, str1);
+                    }
+                    //if ship is placed elsewhere
+                    return checker(ranX, ranY - 1, size, str1) &&
+                            checker(ranX, ranY + 1, size, str1);
                 }
-                //if ship is placed elsewhere
-                return checker(ran1, ran2 - 1, size, str1) &&
-                        checker(ran1, ran2 + 1, size, str1);
             }
         }
 
         //If user wants to set vertical and a tile above is existing
         if (placement.equals(str2)) {
-            if (ran2 != 1) {
+            if (ranY != 0 && ranY + size <= 9) {
                 //checks if ships are set under or above
-                if (Main_Game.AIField_logic.field[ran2 + size - 1][ran1 - 1] != 1 && Main_Game.AIField_logic.field[ran2 - 2][ran1 - 1] != 1) {
+                if (Main_Game.AIField_logic.field[ranX][ranY - 1] != 1 && Main_Game.AIField_logic.field[ranX][ranY + size] != 1) {
                     //if ship will be to the right edge
-                    if (ran1 == 10) {
-                        checker(ran1 - 1, ran2, size, str2);
+                    if (ranX == 9) {
+                        return checker(ranX - 1, ranY, size, str2);
                     }
                     //if ship will be placed to the left edge
-                    if (ran1 == 1) {
-                        checker(ran1 + 1, ran2, size, str2);
+                    if (ranX == 0) {
+                        return checker(ranX + 1, ranY, size, str2);
                     }
                     //if ship is placed elsewhere
-                    return checker(ran1 - 1, ran2, size, str2) &&
-                            checker(ran1 + 1, ran2, size, str2);
+                    return checker(ranX - 1, ranY, size, str2) &&
+                            checker(ranX + 1, ranY, size, str2);
                 }
             }
-            //checks if ships are set under
-            else if (Main_Game.AIField_logic.field[ran2 + size - 1][ran1 - 1] != 1) {
-                //if ship will be placed on the right edge
-                if (ran1 == 10) {
-                    checker(ran1 - 1, ran2, size, str2);
+            if (ranY == 0) {
+                if (Main_Game.AIField_logic.field[ranX][ranY + size] != 1) {
+                    //if ship will be placed on the bottom row
+                    if (ranX == 9) {
+                        return checker(ranX - 1, ranY, size, str1);
+                    }
+                    //if ship will be placed on the top row
+                    if (ranX == 0) {
+                        return checker(ranX + 1, ranY, size, str1);
+                    }
+                    //if ship is placed elsewhere
+                    return checker(ranX - 1 , ranY, size, str1) &&
+                            checker(ranX + 1, ranY, size, str1);
                 }
-                //if ship will be placed on the left edge
-                if (ran1 == 1) {
-                    checker(ran1 + 1, ran2, size, str2);
+            }
+            //checks if ships are ste to the left, used if tile to the right isn't existing
+            if (ranY + size > 9) {
+                if (Main_Game.AIField_logic.field[ranX][ranY - 1] != 1) {
+                    //if ship will be placed on the bottom row
+                    if (ranX == 9) {
+                        return checker(ranX - 1, ranY, size, str1);
+                    }
+                    //if ship will be placed on the top row
+                    if (ranX == 0) {
+                        return checker(ranX + 1, ranY, size, str1);
+                    }
+                    //if ship is placed elsewhere
+                    return checker(ranX - 1, ranY, size, str1) &&
+                            checker(ranX + 1, ranY, size, str1);
                 }
-                //if ship is placed elsewhere
-                else return checker(ran1 - 1, ran2, size, str2) &&
-                        checker(ran1 + 1, ran2, size, str2);
             }
         }
         return false;
@@ -388,15 +418,15 @@ public class AI {
 
     /**
      * Following method places the carrier on random location
-     * takes a random number between 1 - 10 for x,y coordinates
+     * takes a random number between 0 - 9 for x,y coordinates
      * takes a random placement of aiRandomPlacement
      * if ship checker returns true (that's why the checker is static) it places the ship,
      * otherwise it retries to place it by call itself
      */
     //Following methods places the ships on random locations
     private void setAIcarrier() {
-        int x = aiRandomNumber_ranged(11, 1);
-        int y = aiRandomNumber_ranged(11, 1);
+        int x = aiRandomNumber_ranged(9, 0);
+        int y = aiRandomNumber_ranged(9, 0);
         String placement = aiRandomPlacement();
         if (checker(x, y, 5, placement)) {
             if (setenhancer(x, y, 5, placement)) {
@@ -413,14 +443,14 @@ public class AI {
 
     /**
      * Following method places the battleship on random location
-     * takes a random number between 1 - 10 for x,y coordinates
+     * takes a random number between 0 - 9 for x,y coordinates
      * takes a random placement of aiRandomPlacement
      * if ship checker returns true (that's why the checker is static) it places the ship,
      * otherwise it retries to place it by call itself
      */
     private void setAIbattleship() {
-        int x = aiRandomNumber_ranged(11, 1);
-        int y = aiRandomNumber_ranged(11, 1);
+        int x = aiRandomNumber_ranged(9, 0);
+        int y = aiRandomNumber_ranged(9, 0);
         String placement = aiRandomPlacement();
         if (checker(x, y, 4, placement)) {
             if (setenhancer(x, y, 4, placement)) {
@@ -437,14 +467,14 @@ public class AI {
 
     /**
      * Following method places the cruiser/s on random location
-     * takes a random number between 1 - 10 for x,y coordinates
+     * takes a random number between 0 - 9 for x,y coordinates
      * takes a random placement of aiRandomPlacement
      * if ship checker returns true (that's why the checker is static) it places the ship,
      * otherwise it retries to place it by call itself
      */
     private void setAIcruiser() {
-        int x = aiRandomNumber_ranged(11, 1);
-        int y = aiRandomNumber_ranged(11, 1);
+        int x = aiRandomNumber_ranged(9, 0);
+        int y = aiRandomNumber_ranged(9, 0);
         String placement = aiRandomPlacement();
         if (checker(x, y, 3, placement)) {
             if (setenhancer(x, y, 3, placement)) {
@@ -461,14 +491,14 @@ public class AI {
 
     /**
      * Following method places the destroyer on random location
-     * takes a random number between 1 - 10 for x,y coordinates
+     * takes a random number between 0 - 9 for x,y coordinates
      * takes a random placement of aiRandomPlacement
      * if ship checker returns true (that's why the checker is static) it places the ship,
      * otherwise it retries to place it by call itself
      */
     private void setAIdestroyer() {
-        int x = aiRandomNumber_ranged(11, 1);
-        int y = aiRandomNumber_ranged(11, 1);
+        int x = aiRandomNumber_ranged(9, 0);
+        int y = aiRandomNumber_ranged(9, 0);
         String placement = aiRandomPlacement();
         if (checker(x, y, 2, placement)) {
             if (setenhancer(x, y, 2, placement)) {
@@ -517,26 +547,28 @@ public class AI {
      * @return returns false, if ship gets out of bounds or ship will be placed on another already placed ship
      */
     public static boolean checker(int start_x, int start_y, int size, String placement) {
-//checks boarders
-        if (start_x <= 0 || start_x > Main_Game.AIField_logic.field.length || start_y <= 0 || start_y > Main_Game.AIField_logic.field.length ||
-                start_x + size <= 0 || start_x + size > Main_Game.AIField_logic.field.length || start_y + size <= 0 || start_y + size > Main_Game.AIField_logic.field.length) {
-            return false;
-        }
-        //checks if the spot is already used for horizontal placement
+
+        //checks if the spot is already used for vertical placement and out of border placement
         if(str2.equals(placement)) {
+            if(start_y + size - 1 > 9) {
+                return false;
+            }
             int i = start_y;
             while (i < start_y + size) {
-                if (Main_Game.AIField_logic.field[i - 1][start_x - 1] != 0) {
+                if (Main_Game.AIField_logic.field[start_x][i] != 0) {
                     return false;
                 }
                 i++;
             }
         }
-        //checks if the spot is already used for vertical placement
+        //checks if the spot is already used for horizontal placement and out of border placement
         if(str1.equals(placement)) {
+            if(start_x + size - 1 > 9){
+                return false;
+            }
             int j = start_x;
             while (j < start_x + size) {
-                if (Main_Game.AIField_logic.field[start_y - 1][j - 1] != 0) {
+                if (Main_Game.AIField_logic.field[j][start_y] != 0) {
                     return false;
                 }
                 j++;
@@ -555,14 +587,18 @@ public class AI {
     private static void ship_placement(int start_x, int start_y, int size, String placement) {
         if (placement.equals(str2)) {
             for (int i = 0; start_y + i < start_y + size; i++) {
-                Main_Game.AIField_logic.field[start_y - 1 + i][start_x - 1] = Board.SHIP_ON_AREA_STATE;
+                Main_Game.AIField_logic.field[start_x][start_y + i] = Board.SHIP_ON_AREA_STATE;
             }
         }
         if (placement.equals(str1)) {
             for (int i = 0; start_x + i < start_x + size; i++) {
-                Main_Game.AIField_logic.field[start_y - 1][start_x - 1 + i] = Board.SHIP_ON_AREA_STATE;
+                Main_Game.AIField_logic.field[start_x + i][start_y] = Board.SHIP_ON_AREA_STATE;
             }
         }
+    }
+
+    public void AI_searchmode(int row, int col ){
+        Main_Game.PlayerField_logic.field[row][col] =2;
     }
 
 

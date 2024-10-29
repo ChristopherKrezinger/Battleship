@@ -16,6 +16,7 @@ package Battleship_1_0;
 //Runs game
 public class Main {
 
+    static int[][]arr = new int[10][10];
       //Game is running here:
       public static void main (String[]args){
           new Frame_Manager();

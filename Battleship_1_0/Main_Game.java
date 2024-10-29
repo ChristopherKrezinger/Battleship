@@ -75,6 +75,9 @@ public class Main_Game extends JPanel {
     JButton[][] PlayerField = new JButton[10][10];
     JButton[][] AIField = new JButton[10][10];
 
+    //logic fields
+    public static Board PlayerField_logic = new Board();
+    public static Board AIField_logic = new Board();
     //layout for PlayerField
     JPanel gridPanel = new JPanel(new GridBagLayout());
 
@@ -90,8 +93,7 @@ public class Main_Game extends JPanel {
     CustomFont font = new CustomFont();
     AI ai = new AI();
 
-    Board PlayerField_logic = new Board();
-    public static Board AIField_logic = new Board();
+
 
     //constructor
     Main_Game() {
@@ -113,7 +115,7 @@ public class Main_Game extends JPanel {
         imageIcon_bs = new ImageIcon(resizedBATTLESHIP);
         battleship.setIcon(imageIcon_bs);
         battleship.setVisible(true);
-        battleship.setBounds(560, 310, imageIcon_bs.getIconWidth(), imageIcon_bs.getIconHeight());
+        battleship.setBounds(500, 300, imageIcon_bs.getIconWidth(), imageIcon_bs.getIconHeight());
         battleship.putClientProperty("toggle", true);
         battleship.putClientProperty("size", 5);
         battleship.addMouseListener(d_and_d);
@@ -124,7 +126,7 @@ public class Main_Game extends JPanel {
         imageIcon_ca = new ImageIcon(resizedCARRIER);
         carrier.setIcon(imageIcon_ca);
         carrier.setVisible(true);
-        carrier.setBounds(500, 290, imageIcon_ca.getIconWidth(), imageIcon_ca.getIconHeight());
+        carrier.setBounds(560, 300, imageIcon_ca.getIconWidth(), imageIcon_ca.getIconHeight());
         carrier.putClientProperty("toggle", true);
         carrier.putClientProperty("size", 4);
         carrier.addMouseListener(d_and_d);
@@ -431,7 +433,6 @@ public class Main_Game extends JPanel {
         popup.setVisible(true);
         popup.setText("Your Turn Captain");
         enableButtons();
-
     }
     public void AITurn(){
         popup.setVisible(true);
